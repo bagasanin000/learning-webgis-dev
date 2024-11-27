@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  db:
+    container_name: gis_db
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=gis_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - webgis-network
+
+  backend:
+    build: ./backend
+    container_name: gis_backend
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=gis_db
+    ports:
+      - "5000:5000"
+    networks:
+      - webgis-network
+
+  frontend:
+    image: nginx:alpine
+    container_name: gis_frontend
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - webgis-network
+
+networks:
+  webgis-network:
+
+volumes:
+  db_data:
