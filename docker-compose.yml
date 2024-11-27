@@ -7,10 +7,8 @@ services:
       context: ./db
       dockerfile: Dockerfile
     restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=gis_db
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
@@ -21,14 +19,10 @@ services:
   backend:
     build: ./backend
     container_name: gis_backend
+    env_file:
+      - .env
     depends_on:
       - db
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=password
-      - DB_NAME=gis_db
     ports:
       - "5000:5000"
     networks:
